@@ -22,20 +22,13 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_ready_print(void);
-extern void mks_disp_test();
-extern void disp_Limit_ok();
-extern void disp_Limit_error();
-extern void disp_det_error();
-extern void disp_det_ok();
-extern void lv_clear_ready_print();
-extern void lv_temp_info();
-extern void lv_temp_refr();
+extern void lv_draw_extrusion_m(void);
+extern void lv_clear_extrusion_m();
 
 //extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
