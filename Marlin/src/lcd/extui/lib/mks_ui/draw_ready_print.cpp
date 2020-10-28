@@ -326,25 +326,13 @@ void lv_temp_info() {
 // Malderin
 // Create image buttons
 
-buttonExt1 = lv_img_create(scr, NULL);
+/*buttonExt1 = lv_img_create(scr, NULL);
 if (EXTRUDERS == 2)
   buttonExt2 = lv_img_create(scr, NULL);
 #if HAS_HEATED_BED
   buttonBedstate = lv_img_create(scr, NULL);
 #endif
-
-/*
-buttonPrint = lv_imgbtn_create(scr, NULL);
-lv_obj_set_pos(buttonPrint, 340, 90);
-  lv_obj_set_event_cb_mks(buttonPrint, event_handler, ID_PRINT, NULL, 0);
-  lv_imgbtn_set_src(buttonPrint, LV_BTN_STATE_REL, "F:/bmp_printing.bin");
-  lv_imgbtn_set_src(buttonPrint, LV_BTN_STATE_PR, "F:/bmp_printing.bin");
-  lv_imgbtn_set_style(buttonPrint, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonPrint, LV_BTN_STATE_REL, &tft_style_label_rel);
-lv_obj_t * label_print = lv_label_create(buttonPrint, NULL);
-lv_btn_set_layout(buttonPrint, LV_LAYOUT_OFF);
 */
-
 
 buttonExt1 = lv_imgbtn_create(scr, NULL);
 lv_obj_set_event_cb_mks(buttonExt1, event_handler, ID_INFO, NULL, 0);
