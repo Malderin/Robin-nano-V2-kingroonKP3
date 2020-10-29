@@ -395,8 +395,6 @@ void lv_temp_refr() {
 #endif
 }
 
-
-
 void lv_clear_ready_print() {
 	#if BUTTONS_EXIST(EN1, EN2, ENC)
 	  	if (gCfgItems.encoder_enable == true) {
