@@ -83,6 +83,8 @@
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
 
+#include "../../inc/MarlinConfigPre.h"
+
 #if USE_WIFI_FUNCTION
   #include "wifiSerial.h"
   #include "wifi_module.h"
@@ -94,7 +96,7 @@
   #include "draw_cloud_bind.h"
 #endif  //USE_WIFI_FUNCTION
 
-#include "../../inc/MarlinConfigPre.h"
+
 #define FILE_SYS_USB	0
 #define FILE_SYS_SD	1
 
@@ -280,7 +282,9 @@ typedef enum {
   FILAMENTCHANGE_UI,
   LEVELING_UI,
   MESHLEVELING_UI,
-  BIND_UI,
+  #if USE_WIFI_FUNCTION
+    BIND_UI,
+  #endif
   #if HAS_BED_PROBE
     NOZZLE_PROBE_OFFSET_UI,
   #endif
