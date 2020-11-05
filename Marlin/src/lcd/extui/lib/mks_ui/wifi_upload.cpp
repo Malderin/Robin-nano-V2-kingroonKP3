@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI && USE_WIFI_FUNCTION 
+#if HAS_TFT_LVGL_UI && USE_WIFI_FUNCTION
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -32,7 +32,7 @@
 
 #define WIFI_SET()				WRITE(WIFI_RESET_PIN, HIGH);
 #define WIFI_RESET()			WRITE(WIFI_RESET_PIN, LOW);
-#define WIFI_IO1_SET()			WRITE(WIFI_IO1_PIN, HIGH);     
+#define WIFI_IO1_SET()			WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()		WRITE(WIFI_IO1_PIN, LOW);
 
 extern SZ_USART_FIFO  WifiRxFifo;
@@ -84,8 +84,8 @@ UPLOAD_STRUCT esp_upload;
 static const unsigned int retriesPerReset = 3;
 static const uint32_t connectAttemptInterval = 50;
 static const unsigned int percentToReportIncrement = 5;	// how often we report % complete
-static const uint32_t defaultTimeout = 500;	
-static const uint32_t eraseTimeout = 15000;	
+static const uint32_t defaultTimeout = 500;
+static const uint32_t eraseTimeout = 15000;
 static const uint32_t blockWriteTimeout = 200;
 static const uint32_t blockWriteInterval = 15;			// 15ms is long enough, 10ms is mostly too short
 
@@ -146,7 +146,7 @@ void uploadPort_close() {
 
 	//WIFI_COM.end();
 	//WIFI_COM.begin(115200, true);
-	
+
 	esp_port_begin(0);
 
 }
@@ -155,7 +155,7 @@ void uploadPort_close() {
 void flushInput(){
 	while (uploadPort_available() != 0) {
 		(void)uploadPort_read();
-		//IWDG_ReloadCounter();    
+		//IWDG_ReloadCounter();
 	}
 }
 
@@ -200,7 +200,7 @@ int ReadByte(uint8_t *data, signed char slipDecode) {
 	if (uploadPort_available() == 0) {
 		return(0);
 	}
-	
+
 	// at least one byte is available
 	*data = uploadPort_read();
 	if (!slipDecode) {
@@ -221,7 +221,7 @@ int ReadByte(uint8_t *data, signed char slipDecode) {
 	if (uploadPort_available() == 0) {
 		return(-2);
 	}
-	
+
 	// process the escaped byte
 	*data = uploadPort_read();
 	if (*data == 0xdc) {
@@ -285,7 +285,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 	uint32_t startTime = getWifiTick();
 	uint8_t hdr[headerLength];
 	uint16_t hdrIdx = 0;
-	
+
 	uint16_t bodyIdx = 0;
 	uint8_t respBuf[2];
 
@@ -295,13 +295,13 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 	PacketState state = begin;
 
 	*bodyLen = 0;
-	
-	
+
+
 	while (state != done) {
 		uint8_t c;
 		EspUploadResult stat;
-		
-		//IWDG_ReloadCounter();    
+
+		//IWDG_ReloadCounter();
 
 		if (getWifiTickDiff(startTime, getWifiTick()) > msTimeout) {
 			return(timeout);
@@ -322,7 +322,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 			}
 			state = header;
 			needBytes = 2;
-			
+
 			break;
 		case end:		// expecting frame end
 			c = uploadPort_read();
@@ -330,7 +330,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 				return slipFrame;
 			}
 			state = done;
-			
+
 			break;
 
 		case header:	// reading an 8-byte header
@@ -411,7 +411,7 @@ void _writePacket(const uint8_t *data, size_t len) {
 		}
 		else {
 			outBuf[outIndex++] = *data;
-			
+
 		}
 		data++;
 		--len;
@@ -464,9 +464,9 @@ void sendCommand(uint8_t op, uint32_t checkVal, const uint8_t *data, size_t data
 EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint32_t checkVal, uint32_t *valp, uint32_t msTimeout) {
 	size_t bodyLen;
 	EspUploadResult stat;
-	
+
 	sendCommand(op, checkVal, data, dataLen);
-	
+
 	stat = readPacket(op, valp, &bodyLen, msTimeout);
 	if (stat == success && bodyLen != 2) {
 		stat = badReply;
@@ -517,8 +517,8 @@ EspUploadResult flashBegin(uint32_t addr, uint32_t size) {
 	// determine the number of blocks represented by the size
 	uint32_t blkCnt;
 	uint8_t buf[16];
-	uint32_t timeout; 
-		
+	uint32_t timeout;
+
 	blkCnt = (size + EspFlashBlockSize - 1) / EspFlashBlockSize;
 
 	// ensure that the address is on a block boundary
@@ -593,7 +593,7 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
 
 	// Calculate the block checksum
 	cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
-	
+
 	for (i = 0; i < 3; i++){
 		if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success) {
 			break;
@@ -606,7 +606,7 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
 }
 
 void upload_spin() {
-	
+
 	switch (esp_upload.state) {
 	case resetting:
 
@@ -618,10 +618,10 @@ void upload_spin() {
 			//if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {}
 			uploadPort_begin();
 
-			wifi_delay(2000);
+			wifi_delay(3000);
 
 			flushInput();
-		
+
 			esp_upload.lastAttemptTime = esp_upload.lastResetTime = getWifiTick();
 			esp_upload.state = connecting;
 		}
@@ -638,7 +638,7 @@ void upload_spin() {
 			else {
 				esp_upload.connectAttemptNumber++;
 				if (esp_upload.connectAttemptNumber % retriesPerReset == 0) {
-					esp_upload.state = resetting;		
+					esp_upload.state = resetting;
 				}
 			}
 		}
@@ -703,7 +703,7 @@ void upload_spin() {
 
 	case done:
 		update_file.close();
-		
+
 		if (esp_upload.uploadResult == success) {
 			//printf("upload successfully\n");
 		}
@@ -736,17 +736,17 @@ void SendUpdateFile(const char *file, uint32_t address) {
 	esp_upload.state = resetting;
 }
 
-static const uint32_t FirmwareAddress = 0x00000000; 
-static const uint32_t WebFilesAddress = 0x00100000; 
+static const uint32_t FirmwareAddress = 0x00000000;
+static const uint32_t WebFilesAddress = 0x00100000;
 
 
 void ResetWiFiForUpload(int begin_or_end) {
 	//#if 0
 	uint32_t start, now;
-	
+
 	start = getWifiTick();
 	now = start;
-	
+
 	if(begin_or_end == 0) {
 		SET_OUTPUT(WIFI_IO0_PIN);
 	    WRITE(WIFI_IO0_PIN, LOW);
@@ -757,16 +757,16 @@ void ResetWiFiForUpload(int begin_or_end) {
     WIFI_RESET();
 	while(getWifiTickDiff(start, now) < 500) {
 		now = getWifiTick();
-	} 		
+	}
     WIFI_SET();
 	//#endif
 }
 
 int32_t wifi_upload(int type) {
-	esp_upload.retriesPerBaudRate = 9; 
+	esp_upload.retriesPerBaudRate = 9;
 
-	ResetWiFiForUpload(0); 
-	
+	ResetWiFiForUpload(0);
+
 	if(type == 0) {
 		SendUpdateFile(ESP_FIRMWARE_FILE, FirmwareAddress);
 	}
@@ -779,15 +779,15 @@ int32_t wifi_upload(int type) {
 	else
 		return -1;
 
-	
+
 	while(esp_upload.state != upload_idle) {
 
 		upload_spin();
-		//IWDG_ReloadCounter();    
+		//IWDG_ReloadCounter();
 	}
-	
+
 	ResetWiFiForUpload(1);
-	
+
 	if(esp_upload.uploadResult == success)
 		return 0;
 	else
