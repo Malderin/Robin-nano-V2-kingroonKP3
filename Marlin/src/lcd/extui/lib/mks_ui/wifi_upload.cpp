@@ -618,7 +618,7 @@ void upload_spin() {
 			//if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {}
 			uploadPort_begin();
 
-			wifi_delay(3000);
+			wifi_delay(2000);
 
 			flushInput();
 
