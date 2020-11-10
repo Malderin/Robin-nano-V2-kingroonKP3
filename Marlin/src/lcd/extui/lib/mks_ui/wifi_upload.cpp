@@ -81,8 +81,8 @@ const uint32_t ESP_FLASH_ADDR = 0x40200000;			// address of start of Flash
 
 UPLOAD_STRUCT esp_upload;
 
-static const unsigned int retriesPerReset = 3;
-static const uint32_t connectAttemptInterval = 50;
+static const unsigned int retriesPerReset = 20;  //Malderin, default = 3
+static const uint32_t connectAttemptInterval = 100; //50
 static const unsigned int percentToReportIncrement = 5;	// how often we report % complete
 static const uint32_t defaultTimeout = 500;
 static const uint32_t eraseTimeout = 15000;

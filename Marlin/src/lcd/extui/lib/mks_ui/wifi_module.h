@@ -59,19 +59,19 @@ extern "C" { /* C-declarations for C++ */
 
 typedef enum{
 	udisk_buf_empty = 0,
-	udisk_buf_full,	
+	udisk_buf_full,
 } UDISK_DATA_BUFFER_STATE;
 
-#define TRANS_RCV_FIFO_BLOCK_NUM	14
+#define TRANS_RCV_FIFO_BLOCK_NUM	15
 
 
 typedef struct {
-	unsigned char *bufferAddr[TRANS_RCV_FIFO_BLOCK_NUM];		
-	unsigned char *p;	
-	UDISK_DATA_BUFFER_STATE state[TRANS_RCV_FIFO_BLOCK_NUM];		
-	unsigned char read_cur; 
-	unsigned char write_cur;	
-} WIFI_DMA_RCV_FIFO;		
+	unsigned char *bufferAddr[TRANS_RCV_FIFO_BLOCK_NUM];
+	unsigned char *p;
+	UDISK_DATA_BUFFER_STATE state[TRANS_RCV_FIFO_BLOCK_NUM];
+	unsigned char read_cur;
+	unsigned char write_cur;
+} WIFI_DMA_RCV_FIFO;
 
 
 
@@ -79,7 +79,7 @@ typedef struct {
 	uint8_t flag; // 0x0: no error;  0x01: error
 	uint32_t start_tick; //error start time
 	uint32_t now_tick;
-	
+
 } WIFI_TRANS_ERROR;
 extern volatile WIFI_TRANS_ERROR wifiTransError;
 
@@ -87,26 +87,26 @@ extern volatile WIFI_TRANS_ERROR wifiTransError;
 typedef struct {
 	char ap_name[32];	//wifi-name
 	char keyCode[64]; //wifi password
-	int  decodeType; 
+	int  decodeType;
 	int  baud;
 	int  mode;
 } WIFI_PARA;
 
 typedef struct {
-	char state;	
+	char state;
 	char hostUrl[96];
-	int  port;		
+	int  port;
 	char id[21];
 } CLOUD_PARA;
 
 typedef struct {
-	char  dhcp_flag;	
-	char  ip_addr[16];	
-	char  mask[16];	
-	char  gate[16];	
-	char  dns[16];		
-	
-	char  dhcpd_flag; 
+	char  dhcp_flag;
+	char  ip_addr[16];
+	char  mask[16];
+	char  gate[16];
+	char  dns[16];
+
+	char  dhcpd_flag;
 	char  dhcpd_ip[16];
 	char  dhcpd_mask[16];
 	char  dhcpd_gate[16];
@@ -164,7 +164,7 @@ typedef enum {
 } WIFI_RET_TYPE;
 
 
-typedef struct { 
+typedef struct {
   uint32_t uart_read_point;
   uint32_t uart_write_point;
   //uint8_t uartTxBuffer[UART_FIFO_BUFFER_SIZE];
@@ -184,7 +184,7 @@ extern WIFI_PARA wifiPara;
 extern IP_PARA ipPara;
 extern CLOUD_PARA cloud_para;
 
-extern WIFI_GCODE_BUFFER espGcodeFifo; 
+extern WIFI_GCODE_BUFFER espGcodeFifo;
 
 extern uint32_t  getWifiTick();
 extern uint32_t  getWifiTickDiff(int32_t lastTick, int32_t  curTick);
@@ -203,4 +203,3 @@ extern void mks_wifi_firmware_upddate();
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
-

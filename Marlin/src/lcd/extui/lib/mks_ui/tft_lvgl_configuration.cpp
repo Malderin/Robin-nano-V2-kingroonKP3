@@ -406,10 +406,10 @@ void fsmc_tft_init() {
     LCD_IO_WriteReg(0x0029);
 
     LCD_setWindowArea(0, 0, TFT_WIDTH, TFT_HEIGHT);
-    
+
     OUT_WRITE(LCD_BACKLIGHT_PIN, LOW);
     LCD_Clear(0x0000);
-	
+
     lcd_draw_logo();
 
     OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
@@ -417,20 +417,20 @@ void fsmc_tft_init() {
   }
 }
 
-extern unsigned char bmp_public_buf[14 * 1024];
+extern unsigned char bmp_public_buf[15 * 1024];
 extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
 
 void lcd_draw_logo() {
 	LCD_setWindowArea(0, 0, TFT_WIDTH, TFT_HEIGHT);
 	LCD_WriteRAM_Prepare();
-	
+
 	for (uint16_t i = 0; i < (TFT_HEIGHT); i ++) {
 	  Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (TFT_WIDTH) * 2);
     #ifdef LCD_USE_DMA_FSMC
       LCD_IO_WriteSequence((uint16_t *)bmp_public_buf, TFT_WIDTH);
     #else
       int index = 0;,x_off = 0;
-      for (x_off = 0; x_off < TFT_WIDTH; x_off++) {				
+      for (x_off = 0; x_off < TFT_WIDTH; x_off++) {
         LCD_IO_WriteData((uint16_t)bmp_public_buf[index]);
         index += 2;
       }
@@ -439,7 +439,7 @@ void lcd_draw_logo() {
 }
 #endif // !TFT_LVGL_UI_SPI
 
-extern uint8_t bmp_public_buf[14 * 1024];
+extern uint8_t bmp_public_buf[15 * 1024];
 
 void tft_lvgl_init() {
 
@@ -482,7 +482,7 @@ void tft_lvgl_init() {
   indev_drv.type = LV_INDEV_TYPE_POINTER; /*Touch pad is a pointer-like device*/
   indev_drv.read_cb = my_touchpad_read;  /*Set your driver function*/
   lv_indev_drv_register(&indev_drv);   /*Finally register the driver*/
-  
+
   #if BUTTONS_EXIST(EN1, EN2, ENC)
 	  g = lv_group_create();
 	  lv_indev_drv_t enc_drv;
@@ -525,7 +525,7 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
-  #if USE_WIFI_FUNCTION 
+  #if USE_WIFI_FUNCTION
     mks_wifi_firmware_upddate();
   #endif
 
@@ -601,7 +601,7 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
     const uint16 size = (uint16)width;
     uint16_t buf[size];
     for(uint16 j = 0; j < size; j++) {
-      buf[j] = bk_color.full; 
+      buf[j] = bk_color.full;
     }
     SPI_TFT.SetWindows((uint16_t)x1, (uint16_t)y1, width, height);
     for (uint16_t i = 0; i < height; i++) {
@@ -878,7 +878,7 @@ void lv_encoder_pin_init() {
 
 
         buttons = newbutton;
-	  
+
     #if HAS_ENCODER_WHEEL
       static uint8_t lastEncoderBits;
 
@@ -894,13 +894,13 @@ void lv_encoder_pin_init() {
       if (buttons & EN_B) enc |= B10;
       if (enc != lastEncoderBits) {
         switch (enc) {
-          case encrot1: 
+          case encrot1:
             if(lastEncoderBits == encrot0) {
               enc_diff--;
               encoder_time1 = tmpTime;
             }
             break;
-          case encrot2: 
+          case encrot2:
             if(lastEncoderBits == encrot0) {
               enc_diff++;
               encoder_time1 = tmpTime;
@@ -914,7 +914,7 @@ void lv_encoder_pin_init() {
 	  uint8_t enc_c = LV_INDEV_STATE_REL;
       if (buttons & EN_C) enc_c = LV_INDEV_STATE_PR;
 	  if(enc_c != last_button_state) {
-	  	
+
 	  	if(enc_c) state = LV_INDEV_STATE_PR;
 		else state = LV_INDEV_STATE_REL;
 
