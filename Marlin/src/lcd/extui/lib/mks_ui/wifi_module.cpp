@@ -207,7 +207,7 @@ void exchangeFlashMode(char dmaMode) {
 }
 
 static bool longName2DosName(const char* longName, uint8_t* dosName) {
-  uint8_t i = 11;
+  uint8_t i = 11;							//Malderin =11
   while (i) dosName[--i] = '\0';
   while (*longName) {
     uint8_t c = *longName++;
@@ -222,7 +222,7 @@ static bool longName2DosName(const char* longName, uint8_t* dosName) {
       if (c < 0x21 || c == 0x7F) return false;           // Check size, non-printable characters
       dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a')); // Uppercase required for 8.3 name
     }
-    if(i >= 5) { strcat((char *)dosName,"~1.GCO"); return dosName[0] != '\0'; }
+    if(i >= 7) { strcat((char *)dosName,".GCO"); return dosName[0] != '\0'; }  //Malderin >=5    "~1.GCO"
   }
   return dosName[0] != '\0';              // Return true if any name was set
 }
