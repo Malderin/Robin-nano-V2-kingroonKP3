@@ -62,7 +62,7 @@ typedef enum{
 	udisk_buf_full,
 } UDISK_DATA_BUFFER_STATE;
 
-#define TRANS_RCV_FIFO_BLOCK_NUM	15
+#define TRANS_RCV_FIFO_BLOCK_NUM	14
 
 
 typedef struct {

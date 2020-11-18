@@ -417,7 +417,7 @@ void fsmc_tft_init() {
   }
 }
 
-extern unsigned char bmp_public_buf[15 * 1024];
+extern unsigned char bmp_public_buf[14 * 1024];
 extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
 
 void lcd_draw_logo() {
@@ -439,7 +439,7 @@ void lcd_draw_logo() {
 }
 #endif // !TFT_LVGL_UI_SPI
 
-extern uint8_t bmp_public_buf[15 * 1024];
+extern uint8_t bmp_public_buf[14 * 1024];
 
 void tft_lvgl_init() {
 
