@@ -1381,7 +1381,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "G28\nM500"
+//#define Z_PROBE_END_SCRIPT "G28\nM500"
 
 // @section homing
 
