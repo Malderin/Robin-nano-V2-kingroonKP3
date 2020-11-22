@@ -47,7 +47,7 @@
 
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 #include "../../../ultralcd.h"
-XPT2046 touch;
+static XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
