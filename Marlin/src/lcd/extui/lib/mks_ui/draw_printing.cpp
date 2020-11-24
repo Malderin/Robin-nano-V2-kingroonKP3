@@ -200,45 +200,29 @@ void lv_draw_printing(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   /*Create an Image button*/
-/*
-  buttonExt1 = lv_img_create(scr, NULL);
-  #if !defined(SINGLENOZZLE) && EXTRUDERS == 2
-    buttonExt2 = lv_img_create(scr, NULL);
-  #endif
-
-  #if HAS_HEATED_BED
-    buttonBedstate = lv_img_create(scr, NULL);
-  #endif
-*/
-//  buttonFanstate = lv_img_create(scr, NULL);
   buttonTime     = lv_img_create(scr, NULL);
-//  buttonZpos     = lv_img_create(scr, NULL);
   buttonPause    = lv_imgbtn_create(scr, NULL);
   buttonStop     = lv_imgbtn_create(scr, NULL);
   buttonOperat   = lv_imgbtn_create(scr, NULL);
 
-//  lv_img_set_src(buttonExt1, "F:/bmp_ext1_state.bin");
   buttonExt1 = lv_imgbtn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonExt1, event_handler, ID_TEMP, NULL, 0);
   lv_imgbtn_set_src(buttonExt1, LV_BTN_STATE_REL, "F:/bmp_ext1_state.bin");
   lv_imgbtn_set_src(buttonExt1, LV_BTN_STATE_PR, "F:/bmp_ext1_state.bin");
   #if 1
     #if !defined(SINGLENOZZLE) && EXTRUDERS == 2
-//      lv_img_set_src(buttonExt2, "F:/bmp_ext2_state.bin");
       buttonExt2 = lv_imgbtn_create(scr, NULL);
       lv_obj_set_event_cb_mks(buttonExt2, event_handler, ID_TEMP, NULL, 0);
       lv_imgbtn_set_src(buttonExt2, LV_BTN_STATE_REL, "F:/bmp_ext2_state.bin");
       lv_imgbtn_set_src(buttonExt2, LV_BTN_STATE_PR, "F:/bmp_ext2_state.bin");
     #endif
     #if HAS_HEATED_BED
-//      lv_img_set_src(buttonBedstate, "F:/bmp_bed_state.bin");
       buttonBedstate = lv_imgbtn_create(scr, NULL);
       lv_obj_set_event_cb_mks(buttonBedstate, event_handler, ID_TEMP, NULL, 0);
       lv_imgbtn_set_src(buttonBedstate, LV_BTN_STATE_REL, "F:/bmp_bed_state.bin");
       lv_imgbtn_set_src(buttonBedstate, LV_BTN_STATE_PR, "F:/bmp_bed_state.bin");
     #endif
 
-//    lv_img_set_src(buttonFanstate, "F:/bmp_fan_state.bin");
     buttonFanstate = lv_imgbtn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonFanstate, event_handler, ID_FAN, NULL, 0);
     lv_imgbtn_set_src(buttonFanstate, LV_BTN_STATE_REL, "F:/bmp_fan_state.bin");
@@ -246,7 +230,6 @@ void lv_draw_printing(void) {
 
     lv_img_set_src(buttonTime, "F:/bmp_time_state.bin");
 
-//    lv_img_set_src(buttonZpos, "F:/bmp_zpos_state.bin");
     buttonZpos = lv_imgbtn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonZpos, event_handler, ID_BABYSTEP, NULL, 0);
     lv_imgbtn_set_src(buttonZpos, LV_BTN_STATE_REL, "F:/bmp_zpos_state.bin");
