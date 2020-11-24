@@ -81,6 +81,10 @@
 #endif
   
 
+// WIFI
+#define USE_WIFI_FUNCTION   1
+
+
 // Specify a Probe Offsetposition { X, Y, Z }
 #define OFFSET_X 0              // - Left   |   Right +
 #define OFFSET_Y 0              // - Front  |   Back +
@@ -303,7 +307,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(le3tspeak, MKS Robin Nano)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "X-Ryl669" // Who made the changes.
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -346,7 +350,7 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 1
+//#define SERIAL_PORT_2 1
 
 /**
  * This setting determines the communication speed of the printer.
@@ -359,7 +363,7 @@
  */
   #if ANY (SAPPHIRE_PRO, SAPPHIRE_PLUS, BLUER)
     //SAPPHIRE_PRO, SAPPHIRE_PLUS, BLUER
-    #define BAUDRATE 115200 
+    #define BAUDRATE 250000 
   #else
     //No Preset
     #define BAUDRATE 250000
@@ -1042,7 +1046,7 @@
     //#define Z2_DRIVER_TYPE A4988
     #define E0_DRIVER_TYPE A4988
     //#define E1_DRIVER_TYPE A4988
-  #elif ENABLED(SAPPHIRE_PLUS) && NONE(CUSTOM_STEPPER_DRIVERS)
+#elif ENABLED(SAPPHIRE_PLUS) && NONE(CUSTOM_STEPPER_DRIVERS)
     //Sapphire Plus
     #define X_DRIVER_TYPE  TMC2208_STANDALONE
     #define Y_DRIVER_TYPE  TMC2208_STANDALONE
@@ -1051,7 +1055,7 @@
     #define E0_DRIVER_TYPE TMC2208_STANDALONE
     //#define E1_DRIVER_TYPE A4988
 
-  #elif ENABLED(BLUER) && NONE(CUSTOM_STEPPER_DRIVERS)
+#elif ENABLED(BLUER) && NONE(CUSTOM_STEPPER_DRIVERS)
     //Bluer
     #define X_DRIVER_TYPE  TMC2208_STANDALONE
     #define Y_DRIVER_TYPE  TMC2208_STANDALONE
@@ -1059,7 +1063,7 @@
     //#define Z2_DRIVER_TYPE A4988
     #define E0_DRIVER_TYPE A4988
     //#define E1_DRIVER_TYPE A4988
-  #elif ENABLED(CUSTOM_STEPPER_DRIVERS)
+#elif ENABLED(CUSTOM_STEPPER_DRIVERS)
     //Custom_Stepper_Drivers
     #define X_DRIVER_TYPE  DRIVER_X
     #define Y_DRIVER_TYPE  DRIVER_Y
@@ -1071,7 +1075,7 @@
     #ifdef DRIVER_E1
       #define E1_DRIVER_TYPE DRIVER_E1
     #endif
-  #else
+#else
     //No Preset
     //#define X_DRIVER_TYPE  A4988
     //#define Y_DRIVER_TYPE  A4988
@@ -1663,7 +1667,9 @@
     #define INVERT_E5_DIR false
     #define INVERT_E6_DIR false
     #define INVERT_E7_DIR false
-  #elif ENABLED(SAPPHIRE_PLUS)
+#elif ENABLED(SAPPHIRE_PLUS)
+
+    #define INVERT_E0
     //Sapphire Plus
     #if ENABLED(INVERT_X)
       #define INVERT_X_DIR false
@@ -2013,7 +2019,7 @@
   //#define AUTO_BED_LEVELING_LINEAR
   //#define AUTO_BED_LEVELING_BILINEAR
   //#define AUTO_BED_LEVELING_UBL
-  #define MESH_BED_LEVELING
+  //#define MESH_BED_LEVELING
 #endif
 
 /**
