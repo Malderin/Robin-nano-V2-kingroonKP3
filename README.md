@@ -1,8 +1,23 @@
-# Mks-Robin-Nano-Marlin2.0-Firmware
+# Mks-Robin-Nano-Marlin2.0-Firmware-SapphirePlus
+
+
 ## Features
 The firmware of Mks Robin Nano, based on [Marlin2.0.x](https://github.com/MarlinFirmware/Marlin), added the [LittlevGL](https://github.com/littlevgl/lvgl), supporting colourful GUI and touch screen. It is developed on PlatformIO, we hope more and more developers will participate the development of this repository.
 
 ![](https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/blob/master/Images/MKS_Robin_Nano_printing.png)
+
+This is a customized version for TwoTrees's SapphirePlus printer (should work on SapphirePro and Bluer, but you'll need to build them).
+You'll find precompiled firmware in the `Firmware/SapphirePlusWithoutBLTouch` or `Firmware/SapphirePlusWithBLTouch` folder depending on your printer upgrades.
+
+## Known bugs
+
+The following bugs were found by running the firmware:
+| Bug | In MKS version | Expected solution |
+|-----|----------------|-------------------|
+| Pause and resume does not work as expected | Yes | Need to implement 2 types of pauses: one for filament break detection (like the current), where resuming implies unloading and reloading the filament, the other for temporary pause and resume without filament/extruder operation (maybe a small retract?) |
+| Crash in the file listing if the GCode contains a picture | Yes | Not found yet |
+| No position report in the "move" menu, like before | Yes | Need to add the missing label and update it on position change |
+
 
 ## Build
 As the firmware is based on Marlin2.0.x which is built on the core of PlatformIO, the buid compiling steps are the same as Marlin2.0.x. You can directly using [PlatformIO Shell Commands](https://docs.platformio.org/en/latest/core/installation.html#piocore-install-shell-commands), or using IDEs contain built-in PlatformIO Core(CLI), for example, [VSCode](https://docs.platformio.org/en/latest/integration/ide/vscode.html#ide-vscode) and [Atom](https://docs.platformio.org/en/latest/integration/ide/atom.html). VSCode is recommended.
