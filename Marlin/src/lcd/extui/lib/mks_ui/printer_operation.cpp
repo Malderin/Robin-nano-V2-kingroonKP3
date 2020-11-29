@@ -58,7 +58,7 @@ void printer_state_polling() {
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
         uiCfg.current_z_position_bak = current_position.z;
-        
+
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
           ZERO(public_buf_l);
@@ -73,7 +73,7 @@ void printer_state_polling() {
         }
         uiCfg.print_state = PAUSED;
         uiCfg.current_e_position_bak = current_position.e;
-        
+
         // #if ENABLED(POWER_LOSS_RECOVERY)
         //  if (recovery.enabled) recovery.save(true);
         // #endif
@@ -159,7 +159,7 @@ void printer_state_polling() {
 
   if (uiCfg.print_state == WORKING)
     filament_check();
-	
+
   #if USE_WIFI_FUNCTION
     wifi_looping();
   #endif
