@@ -496,9 +496,17 @@
   //#define DEFAULT_Kp 22.2
   //#define DEFAULT_Ki 1.08
   //#define DEFAULT_Kd 114
+
+//Капелька термистор
 #define DEFAULT_Kp 26.1
 #define DEFAULT_Ki 2.76
 #define DEFAULT_Kd 61.70
+
+///Капсульный термистор 1
+//#define DEFAULT_Kp 15.35
+//#define DEFAULT_Ki 0.89
+//#define DEFAULT_Kd 65.83
+
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -1750,7 +1758,7 @@
  * Enable one of the following items for a slower SPI transfer speed.
  * This may be required to resolve "volume init" errors.
  */
-//#define SPI_SPEED SPI_HALF_SPEED
+#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
 //#define SPI_SPEED SPI_EIGHTH_SPEED
 
