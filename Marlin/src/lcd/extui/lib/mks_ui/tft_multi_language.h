@@ -106,6 +106,20 @@ typedef struct machine_common_disp{
   const char *LevelingManuPosConf;
   const char *LevelingAutoCommandConf;
   const char *LevelingAutoZoffsetConf;
+  const char *LevelingTouchmiConf;
+  const char *TouchmiInit;
+  const char *TouchmiOffsetpos;
+  const char *TouchmiOffsetneg;
+  const char *TouchmiSave;
+  const char *TouchmiTest;
+
+  const char *BLTouchLevelingConfTitle;
+  const char *BLTouchLevelingConf;
+  const char *BLTouchInit;
+  const char *BLTouchOffsetpos;
+  const char *BLTouchOffsetneg;
+  const char *BLTouchSave;
+  const char *BLTouchTest;
 
   const char *LevelingSubConfTitle;
   const char *AutoLevelEnable;
@@ -132,10 +146,6 @@ typedef struct machine_common_disp{
   const char *CalibrationRadius;
 
   const char *LevelingSubXYZConfTitle;
-  //const char *Level_positon1;
-  //const char *Level_positon2;
-  //const char *Level_positon3;
-  //const char *Level_positon4;
 
   const char *TemperatureConfTitle;
   const char *NozzleConf;
@@ -276,21 +286,13 @@ typedef struct machine_common_disp{
   const char *zPos;
 
   const char *WifiConfTitle;
-	const char *wifiMode;
-	const char *wifiName;
-	const char *wifiPassWord;
-	const char *wifiCloud;
-	const char *wifiConfig;
-	const char *wifiEdit;
-	const char *wifiConfigTips;
-//Malderin
-  const char *wifiUploadIng;
-  const char *wifiUploadErr;
-  const char *wifiUploadFin;
-  const char *wifiUploadSize;
-  const char *wifiUploadTime;
-  const char *wifiUploadSpeed;
-  const char *wifiDialogNoUpdate;
+  const char *wifiMode;
+  const char *wifiName;
+  const char *wifiPassWord;
+  const char *wifiCloud;
+  const char *wifiConfig;
+  const char *wifiEdit;
+  const char *wifiConfigTips;
 
   const char *OffsetConfTitle;
   const char *Xoffset;
@@ -326,7 +328,6 @@ typedef struct main_menu_disp {
   const char *print;
   const char *extrude;
   const char *leveling;
-  const char *mleveling;
   const char *autoleveling;
   const char *fan;
   const char *set;
@@ -388,6 +389,17 @@ typedef struct home_menu_disp {
 } home_menu_def;
 
 extern home_menu_def home_menu;
+
+typedef struct touchmi_menu_disp {
+  const char *title;
+  const char *init;
+  const char *zoffsetpos;
+  const char *zoffsetneg;
+  const char *test;
+  const char *save;
+} touchmi_menu_def;
+
+extern touchmi_menu_def touchmi_menu;
 
 typedef struct file_menu_disp {
   const char *title;
@@ -684,9 +696,9 @@ extern dialog_menu_def dialog_menu;
 typedef struct print_file_dialog_disp {
   const char *title;
   const char *confirm;
-  const char *cancle;
+  const char *cancel;
   const char *print_file;
-  const char *cancle_print;
+  const char *cancel_print;
   const char *retry;
   const char *stop;
   const char *no_file_print_tips;
@@ -698,6 +710,7 @@ typedef struct print_file_dialog_disp {
   const char *print_time;
   const char *reprint;
   const char *wifi_enable_tips;
+  const char *machinePausingTips;
 } print_file_dialog_menu_def;
 
 extern print_file_dialog_menu_def print_file_dialog_menu;
@@ -709,7 +722,6 @@ typedef struct tool_menu_disp {
   const char *move;
   const char *home;
   const char *leveling;
-  const char *mleveling;
   const char *autoleveling;
   const char *filament;
   const char *more;
@@ -758,12 +770,8 @@ typedef struct eeprom_disp{
 
 extern eeprom_def eeprom_menu;
 /*****************************************/
-//********************************************//
-//#if defined(TFT70)
 //
-//#elif defined(TFT35)
 #define TEXT_VALUE          "%d/%d"
-//#endif
 
 #define TEXT_VALUE_T        ": %d℃"
 #define TEXT_VALUE_mm       ": %dmm"
@@ -814,19 +822,21 @@ extern eeprom_def eeprom_menu;
 #define HOME_Y_TEXT         "Y"
 #define HOME_Z_TEXT         "Z"
 #define HOME_ALL_TEXT       "All"
+
+#define TM_INIT             "Init"
+#define TM_ZOFFSETPOS       "Offset +"
+#define TM_ZOFFSETNEG       "Offset -"
+#define TM_SAVE             "Save"
+#define TM_TEST             "Test"
+
 //#if defined(MKS_ROBIN_NANO)
 #define ABOUT_TYPE_TEXT     "MKS Robin Pro"
-//#elif defined(MKS_ROBIN_MINI)
-//#define ABOUT_TYPE_TEXT       "MKS Robin Mini"
-//#endif
+
 #define ABOUT_VERSION_TEXT  "1.0.0"
-//#define ABOUT_WIFI_TEXT   "WiFi:"
 
 #define FAN_OPEN_TEXT       "100%"
 #define FAN_HALF_TEXT       "50%"
 #define FAN_CLOSE_TEXT      "0%"
-//#define FAN_TIPS1_TEXT      "FAN"
-//#define FAN_TIPS2_TEXT      "FAN\nClose"
 
 #define WIFI_TEXT                       "WIFI"
 #define WIFI_IP_TEXT                    "IP: "
@@ -848,7 +858,7 @@ extern eeprom_def eeprom_menu;
 #define DIALOG_UPLOAD_SPEED_EN          "Speed"
 #define DIALOG_UPDATE_WIFI_FIRMWARE_EN  "Updating wifi model firmware"
 #define DIALOG_UPDATE_WIFI_WEB_EN       "Updating wifi model web data"
-#define DIALOG_UPDATE_NO_DEVICE_EN 			"please check \nwether memory device insert!"
+#define DIALOG_UPDATE_NO_DEVICE_EN      "Please check\nwether memory device insert!"
 
 #define ZOFFSET_STEP001                 "0.01 mm"
 #define ZOFFSET_STEP01                  "0.1 mm"
