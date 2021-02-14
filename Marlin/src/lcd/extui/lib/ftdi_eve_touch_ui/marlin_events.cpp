@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                             *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "compat.h"
@@ -61,9 +61,7 @@ namespace ExtUI {
     if (AT_SCREEN(StatusScreen) || isPrintingFromMedia())
       StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
 
-    #if ENABLED(SDSUPPORT)
-      if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen);
-    #endif
+    if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen)
   }
 
   void onMediaError() {
@@ -87,19 +85,15 @@ namespace ExtUI {
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FINISHED);
   }
 
-  void onPrintTimerPaused() {}
-
-  void onPrintFinished() {}
+  void onPrintTimerPaused() {
+  }
 
   void onFilamentRunout(const extruder_t extruder) {
     char lcd_msg[30];
     sprintf_P(lcd_msg, PSTR("Extruder %d Filament Error"), extruder + 1);
     StatusScreen::setStatusMessage(lcd_msg);
-    InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED, FTDI::PLAY_SYNCHRONOUS);
+    InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
   }
-
-  void onHomingStart() {}
-  void onHomingComplete() {}
 
   void onFactoryReset() {
     InterfaceSettingsScreen::defaultSettings();
@@ -138,8 +132,6 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshLevelingStart() {}
-
     void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
       BedMeshScreen::onMeshUpdate(x, y, val);
     }
@@ -176,9 +168,6 @@ namespace ExtUI {
       GOTO_SCREEN(StatusScreen);
     }
   #endif // HAS_PID_HEATING
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
 }
 
 #endif // TOUCH_UI_FTDI_EVE

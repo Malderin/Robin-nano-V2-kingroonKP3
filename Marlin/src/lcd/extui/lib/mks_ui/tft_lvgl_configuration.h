@@ -22,20 +22,18 @@
 #pragma once
 
 /**
- * @file lcd/extui/lib/mks_ui/tft_lvgl_configuration.h
- * @date 2020-02-21
- */
+ * @file tft_lvgl_configuration.h
+ * @date    2020-02-21
+ * */
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+extern "C" { /* C-declarations for C++ */
 #endif
 
 #include <lvgl.h>
 
-//#define TFT_ROTATION TFT_ROTATE_180
-
-extern uint8_t bmp_public_buf[14 * 1024];
-extern uint8_t public_buf[513];
+//#define GRAPHICAL_TFT_ROTATE_180
+#define USE_WIFI_FUNCTION		1
 
 extern void tft_lvgl_init();
 extern void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p);
@@ -63,5 +61,5 @@ extern lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos);
 extern lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p);
 
 #ifdef __cplusplus
-  } /* C-declarations for C++ */
+} /* C-declarations for C++ */
 #endif

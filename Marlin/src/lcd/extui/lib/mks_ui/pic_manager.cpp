@@ -36,6 +36,7 @@
 #include "../../../../MarlinCore.h"
 
 extern uint16_t DeviceCode;
+extern unsigned char bmp_public_buf[17 * 1024];
 
 #if ENABLED(SDSUPPORT)
   extern char *createFilename(char * const buffer, const dir_t &p);
@@ -54,6 +55,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_preHeat.bin",
   "bmp_extruct.bin",
   "bmp_mov.bin",
+  // "bmp_zero.bin",
   "bmp_leveling.bin",
   "bmp_filamentchange.bin",
   "bmp_more.bin",
@@ -64,8 +66,13 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_speed255.bin",
   "bmp_speed127.bin",
   "bmp_speed0.bin",
-  "bmp_speed0.bin",
 
+  //preheat screen
+  // "bmp_Add.bin",
+  // "bmp_Dec.bin",
+  "bmp_speed0.bin",
+  // "bmp_Extru2.bin",
+  // "bmp_Extru1.bin",
   "bmp_bed.bin",
   "bmp_step1_degree.bin",
   "bmp_step5_degree.bin",
@@ -75,7 +82,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_in.bin",
   "bmp_out.bin",
   "bmp_extru1.bin",
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     "bmp_extru2.bin",
   #endif
   "bmp_speed_high.bin",
@@ -107,6 +114,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   //operation screen
   "bmp_auto_off.bin",
   "bmp_speed.bin",
+  //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_manual_off.bin
   "bmp_fan.bin",
   "bmp_temp.bin",
   "bmp_extrude_opr.bin",
@@ -118,6 +126,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_step10_percent.bin",
   "bmp_extruct_sel.bin",
   "bmp_mov_changespeed.bin",
+  // "bmp_extrude_opr.bin", equal to "bmp_Extruct.bin"
   "bmp_mov_sel.bin",
   "bmp_speed_extruct.bin",
 
@@ -126,7 +135,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_resume.bin",
   "bmp_stop.bin",
   "bmp_ext1_state.bin",
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     "bmp_ext2_state.bin",
   #endif
   "bmp_bed_state.bin",
@@ -177,13 +186,16 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_eeprom_settings.bin",
   "bmp_machine_para.bin",
   "bmp_function1.bin",
+  //"bmp_manual_off.bin",
+  //"bmp_Fan.bin",
+  //"bmp_Language.bin",
 
   //start screen
   "bmp_printing.bin",
   "bmp_set.bin",
   "bmp_tool.bin",
 
-  // base icons
+  //base icons
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
@@ -192,15 +204,20 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_enable.bin",
   "bmp_return.bin",
 
-  #if ENABLED(MKS_WIFI_MODULE)
-    // wifi screen
+  #if USE_WIFI_FUNCTION
+    //wifi screen
     "bmp_wifi.bin",
   #endif
 
-  // babystep screen
+  //babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
   "bmp_baby_move0_1.bin",
+
+ //presets screen
+  //"bmp_preHeat.bin",
+  //"bmp_preHeat.bin",
+  //"bmp_Fan.bin",
 
   // more screen
   "bmp_custom1.bin",
@@ -261,25 +278,20 @@ void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
   //erase 0x001000 -64K
-  for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
-    watchdog_refresh();
-    W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
-  }
-  //erase 64K -- 6M
-  for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++) {
-    watchdog_refresh();
+	for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
+		W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
+	}
+	//erase 64K -- 6M
+  for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++)
     W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
-  }
 }
 
 #if HAS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
-    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++) {
-      watchdog_refresh();
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++)
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
-    }
   }
 #endif
 
@@ -369,6 +381,8 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
   return Pic_SaveAddr;
 }
 
+uint8_t public_buf[512];
+
 #if ENABLED(SDSUPPORT)
 
   static void dosName2LongName(const char dosName[11], char* longName) {
@@ -409,7 +423,6 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
       return;
     }
 
-    watchdog_refresh();
     disp_assets_update_progress(fn);
 
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -422,21 +435,18 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     totalSizeLoaded += pfileSize;
     if (assetType == ASSET_TYPE_LOGO) {
       do {
-        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         Pic_Logo_Write((uint8_t *)fn, public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_TITLE_LOGO) {
       do {
-        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_G_PREVIEW) {
       do {
-        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         default_view_Write(public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
@@ -446,7 +456,6 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
       SPIFlash.beginWrite(Pic_Write_Addr);
       #if HAS_SPI_FLASH_COMPRESSION
         do {
-          watchdog_refresh();
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
           TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
@@ -467,7 +476,6 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     else if (assetType == ASSET_TYPE_FONT) {
       Pic_Write_Addr = UNIGBK_FLASH_ADDR;
       do {
-        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
         Pic_Write_Addr += pbr;
@@ -482,17 +490,14 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
   }
 
   void UpdateAssets() {
-    if (!card.isMounted()) return;
     SdFile dir, root = card.getroot();
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 
       disp_assets_update();
       disp_assets_update_progress("Erasing pics...");
-      watchdog_refresh();
       spiFlashErase_PIC();
       #if HAS_SPI_FLASH_FONT
         disp_assets_update_progress("Erasing fonts...");
-        watchdog_refresh();
         spiFlashErase_FONT();
       #endif
 
@@ -551,7 +556,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
   PIC_MSG PIC;
 
   W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-  if (Pic_cnt == 0xFF)
+  if (Pic_cnt == 0xff)
     Pic_cnt = 0;
 
   for (i = 0; i < Pic_cnt; i++) {

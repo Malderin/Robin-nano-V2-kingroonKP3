@@ -44,11 +44,15 @@ extern xyze_pos_t destination;
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
-void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
+void GcodeSuite::G0_G1(
+  #if IS_SCARA || defined(G0_FEEDRATE)
+    const bool fast_move/*=false*/
+  #endif
+) {
 
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
-      && !homing_needed_error(
+      && !axis_unhomed_error(
           (parser.seen('X') ? _BV(X_AXIS) : 0)
         | (parser.seen('Y') ? _BV(Y_AXIS) : 0)
         | (parser.seen('Z') ? _BV(Z_AXIS) : 0) )

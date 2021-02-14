@@ -28,6 +28,7 @@
 extern void lv_draw_extrusion_m(void);
 extern void lv_clear_extrusion_m();
 
+//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

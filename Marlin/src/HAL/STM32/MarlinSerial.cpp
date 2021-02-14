@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
@@ -35,7 +36,7 @@
 
 #define DECLARE_SERIAL_PORT(ser_num) \
   void _rx_complete_irq_ ## ser_num (serial_t * obj); \
-  MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
+  MarlinSerial MSerial ## ser_num (USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
   void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
 
 #define DECLARE_SERIAL_PORT_EXP(ser_num) DECLARE_SERIAL_PORT(ser_num)
@@ -48,18 +49,16 @@
   DECLARE_SERIAL_PORT_EXP(SERIAL_PORT_2)
 #endif
 
-#if defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT >= 0
-  DECLARE_SERIAL_PORT_EXP(MMU2_SERIAL_PORT)
-#endif
-
-#if defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT >= 0
-  DECLARE_SERIAL_PORT_EXP(LCD_SERIAL_PORT)
+#if defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT >= 0
+  DECLARE_SERIAL_PORT_EXP(DGUS_SERIAL_PORT)
 #endif
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
   HardwareSerial::begin(baud, config);
-  // Replace the IRQ callback with the one we have defined
-  TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
+  // replace the IRQ callback with the one we have defined
+  #if ENABLED(EMERGENCY_PARSER)
+    _serial.rx_callback = _rx_callback;
+  #endif
 }
 
 // This function is Copyright (c) 2006 Nicholas Zambetti.
@@ -81,7 +80,7 @@ void MarlinSerial::_rx_complete_irq(serial_t *obj) {
     }
 
     #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, c);
+      emergency_parser.update(emergency_state, c);
     #endif
   }
 }

@@ -43,7 +43,7 @@
  *       A15 | A11
  */
 
-#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
+#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -76,9 +76,9 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
 
-  #if BOTH(IS_NEWPANEL, PANEL_ONE)
+  #if BOTH(NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4                       68
 
@@ -89,7 +89,7 @@
     #define LCD_PINS_D7                       67
   #endif
 
-  #if IS_NEWPANEL
+  #if ENABLED(NEWPANEL)
 
     #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
@@ -115,7 +115,7 @@
 
     #else
 
-      #if IS_RRW_KEYPAD
+      #if ENABLED(REPRAPWORLD_KEYPAD)
         #undef BTN_EN1
         #define BTN_EN1                       67  // encoder
 
@@ -127,10 +127,6 @@
       #endif
     #endif
 
-    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
-    #endif
+  #endif // NEWPANEL
 
-  #endif // IS_NEWPANEL
-
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD

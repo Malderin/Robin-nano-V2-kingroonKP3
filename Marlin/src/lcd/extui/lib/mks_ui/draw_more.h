@@ -28,6 +28,7 @@ extern "C" { /* C-declarations for C++ */
 extern void lv_draw_more(void);
 extern void lv_clear_more();
 
+//extern void disp_temp_ready_print();
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

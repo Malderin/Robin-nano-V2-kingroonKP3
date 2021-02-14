@@ -26,7 +26,7 @@
  * https://reprap.org/wiki/Alligator_Board
  */
 
-#if NOT_TARGET(__SAM3X8E__)
+#ifndef __SAM3X8E__
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -143,17 +143,18 @@
 //
 // LCD / Controller
 //
-#if IS_RRD_FG_SC
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
   #define LCD_PINS_RS                         18
   #define LCD_PINS_ENABLE                     15
   #define LCD_PINS_D4                         19
   #define BEEPER_PIN                          64
-  #undef UI_VOLTAGE_LEVEL
-  #define UI_VOLTAGE_LEVEL                     1
-#endif
 
-#if IS_NEWPANEL
   #define BTN_EN1                             14
   #define BTN_EN2                             16
   #define BTN_ENC                             17
-#endif
+
+  #undef UI_VOLTAGE_LEVEL
+  #define UI_VOLTAGE_LEVEL                     1
+
+#endif // REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER

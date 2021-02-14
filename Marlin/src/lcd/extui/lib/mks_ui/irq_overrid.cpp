@@ -23,41 +23,38 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "tft_lvgl_configuration.h"
+#include "draw_ui.h"
+#include "wifiSerial.h"
 
-#ifdef __STM32F1__
+#if USE_WIFI_FUNCTION
 
-#if ENABLED(MKS_WIFI_MODULE)
+#include <libmaple/libmaple.h>
+#include <libmaple/gpio.h>
+#include <libmaple/timer.h>
+#include <libmaple/usart.h>
+#include <libmaple/ring_buffer.h>
 
-  #include "draw_ui.h"
-  #include "wifiSerial.h"
+#include "../../../../inc/MarlinConfig.h"
 
-  #include <libmaple/libmaple.h>
-  #include <libmaple/gpio.h>
-  #include <libmaple/timer.h>
-  #include <libmaple/usart.h>
-  #include <libmaple/ring_buffer.h>
+#ifdef __cplusplus
+extern "C" { /* C-declarations for C++ */
+#endif
 
-  #include "../../../../inc/MarlinConfig.h"
+#define WIFI_IO1_SET()			WRITE(WIFI_IO1_PIN, HIGH);     
+#define WIFI_IO1_RESET()		WRITE(WIFI_IO1_PIN, LOW);
 
-  #ifdef __cplusplus
-    extern "C" { /* C-declarations for C++ */
-  #endif
+void __irq_usart1(void) {
+   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE)) {
+   	WRITE(WIFI_IO1_PIN, HIGH);
+   }
+   WIFISERIAL.wifi_usart_irq(USART1_BASE);
+}
 
-  #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
-  #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
+#ifdef __cplusplus
+} /* C-declarations for C++ */
+#endif
 
-  void __irq_usart1(void) {
-    if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE))
-      WRITE(WIFI_IO1_PIN, HIGH);
+#endif //USE_WIFI_FUNCTION
 
-    WIFISERIAL.wifi_usart_irq(USART1_BASE);
-  }
 
-  #ifdef __cplusplus
-    } /* C-declarations for C++ */
-  #endif
-
-#endif // MKS_WIFI_MODULE
-#endif // __STM32F1__
-#endif // HAS_TFT_LVGL_UI
+#endif	// HAS_TFT_LVGL_UI

@@ -23,10 +23,9 @@
 
 /**
  * MKS Robin nano (STM32F130VET6) board pin assignments
- * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
  */
 
-#if NOT_TARGET(STM32F1, STM32F1xx)
+#ifndef __STM32F1__
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -34,15 +33,10 @@
 
 #define BOARD_INFO_NAME "MKS Robin Nano"
 
-#define BOARD_NO_NATIVE_USB
-
-// Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER 5
-
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-#define DISABLE_JTAG
+#define DISABLE_DEBUG
 
 //
 // EEPROM
@@ -54,12 +48,7 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
 
-#define SPI_DEVICE                             2
-
-//
-// Servos
-//
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH
+#define ENABLE_SPI2
 
 //
 // Limit Switches
@@ -99,24 +88,6 @@
 #define TEMP_1_PIN                          PC2   // TH2
 #define TEMP_BED_PIN                        PC0   // TB1
 
-#if HAS_TMC_UART
-
-  #define X_SERIAL_TX_PIN                   PA10
-  #define X_SERIAL_RX_PIN                   PA10
-
-  #define Y_SERIAL_TX_PIN                   PA9
-  #define Y_SERIAL_RX_PIN                   PA9
-
-  #define Z_SERIAL_TX_PIN                   PC7
-  #define Z_SERIAL_RX_PIN                   PC7
-
-  #define E0_SERIAL_TX_PIN                  PC13
-  #define E0_SERIAL_RX_PIN                  PC13
-
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif // HAS_TMC_UART
-
 //
 // Heaters / Fans
 //
@@ -151,25 +122,32 @@
 #if HAS_TFT_LVGL_UI
   //#define MKSPWC
   #ifdef MKSPWC
-    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
-    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
-    #define KILL_PIN                        PA2   // Enable MKSPWC DET PIN
-    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
+    #define SUICIDE_PIN                       PB2   // Enable MKSPWC SUICIDE PIN
+    #define SUICIDE_PIN_INVERTING             false // Enable MKSPWC PIN STATE
+    #define KILL_PIN                          PA2   // Enable MKSPWC DET PIN
+    #define KILL_PIN_STATE                    true  // Enable MKSPWC PIN STATE
   #endif
 
-  #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
-  #define MT_DET_2_PIN                      PE6   // LVGL UI FILAMENT RUNOUT2 PIN
-  #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
+  #define MT_DET_1_PIN                        PA4   // LVGL UI FILAMENT RUNOUT1 PIN
+  #define MT_DET_2_PIN                        PE6   // LVGL UI FILAMENT RUNOUT2 PIN
+  #define MT_DET_PIN_INVERTING                false // LVGL UI filament RUNOUT PIN STATE
 
-  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
-  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
-  #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
+  #define WIFI_IO0_PIN                        PC13  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN       			            PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN			              	PA5   // MKS ESP WIFI RESET PIN
+
+  #if ENABLED(MKS_TEST)
+    #define MKS_TEST_POWER_LOSS_PIN           PA2   // PW_DET
+    #define MKS_TEST_PS_ON_PIN                PB2   // PW_OFF
+  #endif  
 #else
-  //#define POWER_LOSS_PIN                  PA2   // PW_DET
-  //#define PS_ON_PIN                       PB2   // PW_OFF
-  #define FIL_RUNOUT_PIN                    PA4
-  #define FIL_RUNOUT2_PIN                   PE6
+  //#define POWER_LOSS_PIN                      PA2   // PW_DET
+  //#define PS_ON_PIN                           PB2   // PW_OFF
+  #define FIL_RUNOUT_PIN                      PA4
+  #define FIL_RUNOUT2_PIN                     PE6
 #endif
+
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 
 //#define LED_PIN                           PB2
 
@@ -192,18 +170,22 @@
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'TFT_RESET_PIN'
+ * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
+
 // Shared FSMC Configs
 #if HAS_FSMC_TFT
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+
+  #define LCD_RESET_PIN                     PC6   // FSMC_RST
+  #define LCD_BACKLIGHT_PIN                 PD13
 
   #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
@@ -214,18 +196,67 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
-
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
+#endif
 
+// LVGL Configs
+#if ENABLED(TFT_LVGL_UI_FSMC)
+
+  #define XPT2046_X_CALIBRATION            17880
+  #define XPT2046_Y_CALIBRATION           -12234
+  #define XPT2046_X_OFFSET                   -45
+  #define XPT2046_Y_OFFSET                   349
+
+// Emulated DOGM Configs
+#elif ENABLED(FSMC_GRAPHICAL_TFT)
+
+  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
+  #define DOGLCD_SCK                        -1
+
+  #ifndef GRAPHICAL_TFT_UPSCALE
+    #define GRAPHICAL_TFT_UPSCALE              3
+  #endif
+  #ifndef TFT_WIDTH
+    #define TFT_WIDTH                        480
+  #endif
+  #ifndef TFT_PIXEL_OFFSET_X
+    #define TFT_PIXEL_OFFSET_X                48
+  #endif
+  #ifndef TFT_HEIGHT
+    #define TFT_HEIGHT                       320
+  #endif
+  #ifndef TFT_PIXEL_OFFSET_Y
+    #define TFT_PIXEL_OFFSET_Y                32
+  #endif
+
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          12149
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION          -8746
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -35
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 256
+  #endif
+
+#elif ENABLED(TFT_480x320)
+  #define XPT2046_X_CALIBRATION            17880
+  #define XPT2046_Y_CALIBRATION           -12234
+  #define XPT2046_X_OFFSET                   -45
+  #define XPT2046_Y_OFFSET                   349
+
+  #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
+  #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
 #endif
 
 #define HAS_SPI_FLASH                          1
+#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
-  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14

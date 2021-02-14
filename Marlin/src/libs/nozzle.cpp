@@ -31,10 +31,6 @@ Nozzle nozzle;
 #include "../MarlinCore.h"
 #include "../module/motion.h"
 
-#if NOZZLE_CLEAN_MIN_TEMP > 20
-  #include "../module/temperature.h"
-#endif
-
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
   /**
@@ -50,24 +46,15 @@ Nozzle nozzle;
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
-      #if ENABLED(NOZZLE_CLEAN_NO_Y)
-        do_blocking_move_to_x(start.x);
-      #else
-        do_blocking_move_to_xy(start);
-      #endif
+      do_blocking_move_to_xy(start);
     #else
       do_blocking_move_to(start);
     #endif
 
     // Start the stroke pattern
     LOOP_L_N(i, strokes >> 1) {
-      #if ENABLED(NOZZLE_CLEAN_NO_Y)
-        do_blocking_move_to_x(end.x);
-        do_blocking_move_to_x(start.x);
-      #else
-        do_blocking_move_to_xy(end);
-        do_blocking_move_to_xy(start);
-      #endif
+      do_blocking_move_to_xy(end);
+      do_blocking_move_to_xy(start);
     }
 
     TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
@@ -157,19 +144,6 @@ Nozzle nozzle;
 
     const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
-    #if NOZZLE_CLEAN_MIN_TEMP > 20
-      if (thermalManager.degTargetHotend(arrPos) < NOZZLE_CLEAN_MIN_TEMP) {
-        #if ENABLED(NOZZLE_CLEAN_HEATUP)
-          SERIAL_ECHOLNPGM("Nozzle too Cold - Heating");
-          thermalManager.setTargetHotend(NOZZLE_CLEAN_MIN_TEMP, arrPos);
-          thermalManager.wait_for_hotend(arrPos);
-        #else
-          SERIAL_ECHOLNPGM("Nozzle too cold - Skipping wipe");
-          return;
-        #endif
-      }
-    #endif
-
     #if HAS_SOFTWARE_ENDSTOPS
 
       #define LIMIT_AXIS(A) do{ \
@@ -178,7 +152,7 @@ Nozzle nozzle;
         LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
       }while(0)
 
-      if (soft_endstop.enabled()) {
+      if (soft_endstops_enabled) {
 
         LIMIT_AXIS(x);
         LIMIT_AXIS(y);

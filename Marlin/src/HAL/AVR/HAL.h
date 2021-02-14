@@ -15,7 +15,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 #pragma once
 
@@ -82,44 +81,54 @@ typedef int8_t pin_t;
 
 // Serial ports
 #ifdef USBCON
-  #include "../../core/serial_hook.h"
-  typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-  extern DefaultSerial MSerial;
-  #ifdef BLUETOOTH
-    typedef ForwardSerial0Type< decltype(bluetoothSerial) > BTSerial;
-    extern BTSerial btSerial;
+  #if ENABLED(BLUETOOTH)
+    #define MYSERIAL0 bluetoothSerial
+  #else
+    #define MYSERIAL0 Serial
   #endif
-
-  #define MYSERIAL0 TERN(BLUETOOTH, btSerial, MSerial)
+  #define NUM_SERIAL 1
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)
     #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
+
   #define MYSERIAL0 customizedSerial1
 
   #ifdef SERIAL_PORT_2
     #if !WITHIN(SERIAL_PORT_2, -1, 3)
       #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+    #elif SERIAL_PORT_2 == SERIAL_PORT
+      #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
     #endif
     #define MYSERIAL1 customizedSerial2
+    #define NUM_SERIAL 2
+  #else
+    #define NUM_SERIAL 1
   #endif
 #endif
 
-#ifdef MMU2_SERIAL_PORT
-  #if !WITHIN(MMU2_SERIAL_PORT, -1, 3)
-    #error "MMU2_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+#ifdef DGUS_SERIAL_PORT
+  #if !WITHIN(DGUS_SERIAL_PORT, -1, 3)
+    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #endif
-  #define MMU2_SERIAL mmuSerial
+  #define DGUS_SERIAL internalDgusSerial
+
+  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.get_tx_buffer_free
 #endif
 
-#ifdef LCD_SERIAL_PORT
-  #if !WITHIN(LCD_SERIAL_PORT, -1, 3)
-    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+#ifdef ANYCUBIC_LCD_SERIAL_PORT
+  #if !WITHIN(ANYCUBIC_LCD_SERIAL_PORT, -1, 3)
+    #error "ANYCUBIC_LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #elif ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT
+    #error "ANYCUBIC_LCD_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT_2
+    #error "ANYCUBIC_LCD_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #endif
-  #define LCD_SERIAL lcdSerial
-  #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
-  #endif
+  #define ANYCUBIC_LCD_SERIAL anycubicLcdSerial
 #endif
 
 // ------------------------
@@ -135,18 +144,12 @@ void HAL_init();
 inline void HAL_clear_reset_source() { MCUSR = 0; }
 inline uint8_t HAL_get_reset_source() { return MCUSR; }
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
-
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-
-extern "C" int freeMemory();
-
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+extern "C" {
+  int freeMemory();
+}
+#pragma GCC diagnostic pop
 
 // ADC
 #ifdef DIDR2
