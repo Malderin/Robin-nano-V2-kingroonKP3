@@ -43,10 +43,13 @@
 #include <stdio.h>
 
 extern lv_group_t*  g;
-static lv_obj_t * scr;
-//static lv_obj_t *labelExt1, *labelExt2, *labelBed;
-//static lv_obj_t *buttonExt1, *buttonExt2;
-//TERN_(HAS_HEATED_BED, static lv_obj_t * buttonBedstate);
+static lv_obj_t *scr;
+static lv_obj_t *labelExt1;
+
+TERN_(HAS_MULTI_EXTRUDER, static lv_obj_t *labelExt2);
+#if HAS_HEATED_BED
+  static lv_obj_t* labelBed;
+#endif
 
 #if ENABLED(MKS_TEST)
   uint8_t curent_disp_ui = 0;
@@ -58,6 +61,7 @@ enum {
   ID_PRINT,
   ID_INFO
 };
+
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   lv_clear_ready_print();
@@ -69,16 +73,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_SET:
       lv_draw_set();
       break;
-      case ID_INFO:
-        if (event == LV_EVENT_CLICKED) {
-          // nothing to do
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          lv_clear_ready_print();
-          //lv_temp_info();
-          lv_draw_preHeat();
-        }
-        break;
+    case ID_INFO:
+//      lv_clear_ready_print();
+      //lv_temp_info();
+      lv_draw_preHeat();
+      break;
     case ID_PRINT:
       lv_draw_print_file();
       break;
@@ -86,8 +85,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 lv_obj_t *limit_info, *det_info;
-lv_obj_t *tmc_state_info;
-lv_style_t limit_style, det_style, tmc_state_style;
+lv_style_t limit_style, det_style;
 void disp_Limit_ok() {
   limit_style.text.color.full = 0xFFFF;
   lv_obj_set_style(limit_info, &limit_style);
@@ -110,17 +108,6 @@ void disp_det_error() {
   lv_label_set_text(det_info, "det:error");
 }
 
-void disp_tmc_ok() {
-  tmc_state_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(tmc_state_info, &tmc_state_style);
-  lv_label_set_text(tmc_state_info, "TMC CONNECTION OK");
-}
-void disp_tmc_error() {
-  tmc_state_style.text.color.full = 0xF800;
-  lv_obj_set_style(tmc_state_info, &tmc_state_style);
-  lv_label_set_text(tmc_state_info, "TMC CONNECTION ERROR");
-}
-
 lv_obj_t *e1, *e2, *e3, *bed;
 void mks_disp_test() {
   char buf[30] = {0};
@@ -136,7 +123,7 @@ void mks_disp_test() {
   #endif
 }
 
-void lv_draw_ready_print(void) {
+void lv_draw_ready_print() {
   char buf[30] = {0};
   lv_obj_t *buttonTool;
 
@@ -196,17 +183,6 @@ void lv_draw_ready_print(void) {
 
       lv_obj_set_pos(det_info, 20, 145);
       lv_label_set_text(det_info, " ");
-
-      tmc_state_info = lv_label_create_empty(scr);
-
-      lv_style_copy(&tmc_state_style, &lv_style_scr);
-      tmc_state_style.body.main_color.full = 0X0000;
-      tmc_state_style.body.grad_color.full = 0X0000;
-      tmc_state_style.text.color.full      = 0Xffff;
-      lv_obj_set_style(tmc_state_info, &tmc_state_style);
-
-      lv_obj_set_pos(tmc_state_info, 20, 170);
-      lv_label_set_text(tmc_state_info, " ");
     #endif // if 1
 
   }
@@ -214,6 +190,7 @@ void lv_draw_ready_print(void) {
     lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 90, event_handler, ID_TOOL);
     lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 90, event_handler, ID_SET);
     lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 90, event_handler, ID_PRINT);
+    lv_temp_info();
   }
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -226,61 +203,29 @@ void lv_draw_ready_print(void) {
 }
 
 void lv_temp_info() {
-// Malderin
-// Create image buttons
+  // Malderin
+  // Create image buttons
 
-/*buttonExt1 = lv_img_create(scr, NULL);
-if (EXTRUDERS == 2)
-  buttonExt2 = lv_img_create(scr, NULL);
-#if HAS_HEATED_BED
-  buttonBedstate = lv_img_create(scr, NULL);
-#endif
-*/
-
-buttonExt1 = lv_imgbtn_create(scr, NULL);
-lv_obj_set_event_cb_mks(buttonExt1, event_handler, ID_INFO, NULL, 0);
-lv_imgbtn_set_src(buttonExt1, LV_BTN_STATE_REL, "F:/bmp_ext1_state.bin");
-lv_imgbtn_set_src(buttonExt1, LV_BTN_STATE_PR, "F:/bmp_ext1_state.bin");
-
-#if 1
-  if (EXTRUDERS == 2) {
-    buttonExt2 = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonExt2, event_handler, ID_INFO, NULL, 0);
-    lv_imgbtn_set_src(buttonExt2, LV_BTN_STATE_REL, "F:/bmp_ext2_state.bin");
-    lv_imgbtn_set_src(buttonExt2, LV_BTN_STATE_PR, "F:/bmp_ext2_state.bin");
-  }
   #if HAS_HEATED_BED
-    buttonBedstate = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonBedstate, event_handler, ID_INFO, NULL, 0);
-    lv_imgbtn_set_src(buttonBedstate, LV_BTN_STATE_REL, "F:/bmp_bed_state.bin");
-    lv_imgbtn_set_src(buttonBedstate, LV_BTN_STATE_PR, "F:/bmp_bed_state.bin");
+    lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", 20, 260, event_handler, ID_INFO);
   #endif
 
-  lv_obj_set_pos(buttonExt1, 180, 260);
-  if (EXTRUDERS == 2)
-    lv_obj_set_pos(buttonExt2, 325, 260);
-  #if HAS_HEATED_BED
-    lv_obj_set_pos(buttonBedstate, 20, 260);
-  #endif
+  lv_big_button_create(scr, "F:/bmp_ext1_state.bin", " ", 180, 260, event_handler, ID_INFO);
 
-  labelExt1 = lv_label_create(scr, NULL);
-  lv_obj_set_style(labelExt1, &tft_style_label_rel);
-  lv_obj_set_pos(labelExt1, 230, 270);
-
-  if (EXTRUDERS == 2) {
-    labelExt2 = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelExt2, &tft_style_label_rel);
-    lv_obj_set_pos(labelExt2, 375, 270);
-  }
+  #if HAS_MULTI_EXTRUDER
+    lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 325, 260, event_handler, ID_INFO);
   #endif
 
   #if HAS_HEATED_BED
-    labelBed = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelBed, &tft_style_label_rel);
-    lv_obj_set_pos(labelBed, 70, 270);
-  #endif
+    labelBed = lv_label_create(scr, 70, 270, nullptr);
+    #endif
 
-  lv_temp_refr();
+    labelExt1 = lv_label_create(scr, 230, 270, nullptr);
+
+    #if HAS_MULTI_EXTRUDER
+      labelExt2 = lv_label_create(scr, 375, 270, nullptr);
+    #endif
+    lv_temp_refr();
 }
 
 void lv_temp_refr() {
@@ -299,12 +244,10 @@ void lv_temp_refr() {
 }
 
 void lv_clear_ready_print() {
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	  	if (gCfgItems.encoder_enable == true) {
-			lv_group_remove_all_objs(g);
-	  	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr);
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

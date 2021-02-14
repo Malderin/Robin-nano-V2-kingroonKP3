@@ -816,9 +816,9 @@ void GUI_RefreshPage() {
       break;
 
   //Malderin
-    if (temperature_change_frequency == 1) {
-      temperature_change_frequency = 0;
-      lv_temp_refr();
+      if (temps_update_flag) {
+        temps_update_flag = false;
+        lv_temp_refr();
       }
       break;
     case PRINT_FILE_UI: break;
