@@ -21,10 +21,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
-#endif
-
 #include <lvgl.h>
 
 #include <stdint.h>
@@ -32,10 +28,9 @@
 
 // the colors of the last MKS Ui
 #undef LV_COLOR_BACKGROUND
-#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) // LV_COLOR_MAKE(0x00, 0x00, 0x00)
+#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A)
 
 #define TFT_LV_PARA_BACK_BODY_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF)
-
 
 #include "tft_lvgl_configuration.h"
 #include "tft_multi_language.h"
@@ -82,8 +77,12 @@
 #include "draw_baby_stepping.h"
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
+#include "draw_touchmi_settings.h"
+#include "draw_bltouch_settings.h"
 
-#if USE_WIFI_FUNCTION
+#include "../../../../inc/MarlinConfigPre.h"
+
+#if ENABLED(MKS_WIFI_MODULE)
   #include "wifiSerial.h"
   #include "wifi_module.h"
   #include "wifi_upload.h"
@@ -91,15 +90,19 @@
   #include "draw_wifi.h"
   #include "draw_wifi_list.h"
   #include "draw_wifi_tips.h"
-#endif  //USE_WIFI_FUNCTION
+  #include "draw_cloud_bind.h"
+#endif
 
-#include "../../inc/MarlinConfigPre.h"
-#define FILE_SYS_USB	0
-#define FILE_SYS_SD	1
+#define ESP_WIFI          0x02
+#define AP_MODEL          0x01
+#define STA_MODEL         0x02
+
+#define FILE_SYS_USB      0
+#define FILE_SYS_SD       1
 
 #define TICK_CYCLE 1
 
-#define PARA_SEL_ICON_TEXT_COLOR	LV_COLOR_MAKE(0x4a, 0x52, 0xff);
+#define PARA_SEL_ICON_TEXT_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF);
 
 #define TFT35
 
@@ -139,7 +142,9 @@
   #define PARA_UI_SIZE_X            450
   #define PARA_UI_SIZE_Y            40
 
-  #define PARA_UI_ARROW_V          12
+  #define PARA_UI_ARROW_V           12
+  #define PARA_UI_ITEM_TEXT_V       10
+  #define PARA_UI_ITEM_TEXT_H       10
 
   #define PARA_UI_BACL_POS_X        400
   #define PARA_UI_BACL_POS_Y        270
@@ -161,8 +166,15 @@
   #define PARA_UI_VALUE_BTN_X_SIZE  70
   #define PARA_UI_VALUE_BTN_Y_SIZE  28
 
+  #define PARA_UI_TURN_BTN_X_SIZE   70
+  #define PARA_UI_TURN_BTN_Y_SIZE   40
+
   #define PARA_UI_BACK_BTN_X_SIZE   70
   #define PARA_UI_BACK_BTN_Y_SIZE   40
+
+  #define QRCODE_X                  20
+  #define QRCODE_Y                  40
+  #define QRCODE_WIDTH              160
 
 #else // ifdef TFT35
 
@@ -171,18 +183,22 @@
 
 #endif // ifdef TFT35
 
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
+
 extern char public_buf_m[100];
 extern char public_buf_l[30];
 
 typedef struct {
   uint32_t spi_flash_flag;
   uint8_t disp_rotation_180;
-  uint8_t multiple_language;
+  bool multiple_language;
   uint8_t language;
   uint8_t leveling_mode;
-  uint8_t from_flash_pic;
-  uint8_t finish_power_off;
-  uint8_t pause_reprint;
+  bool from_flash_pic;
+  bool finish_power_off;
+  bool pause_reprint;
   uint8_t wifi_mode_sel;
   uint8_t fileSysType;
   uint8_t wifi_type;
@@ -201,22 +217,23 @@ typedef struct {
 } CFG_ITMES;
 
 typedef struct {
-  uint8_t curTempType : 1,
-          curSprayerChoose : 3,
-          stepHeat : 4;
-  uint8_t leveling_first_time : 1,
+  uint8_t curTempType:1,
+          curSprayerChoose:3,
+          stepHeat:4;
+  uint8_t leveling_first_time:1,
           para_ui_page:1,
-	        configWifi:1,
-	        command_send:1,
+          configWifi:1,
+          command_send:1,
           filament_load_heat_flg:1,
           filament_heat_completed_load:1,
           filament_unload_heat_flg:1,
           filament_heat_completed_unload:1;
   uint8_t filament_loading_completed:1,
-  		    filament_unloading_completed:1,
-  		    filament_loading_time_flg:1,
-  		    filament_unloading_time_flg:1,
+          filament_unloading_completed:1,
+          filament_loading_time_flg:1,
+          filament_unloading_time_flg:1,
           curSprayerChoose_bak:4;
+  uint8_t tmc_connect_state:1;
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
@@ -240,6 +257,7 @@ typedef struct {
   float desireSprayerTempBak;
   float current_x_position_bak;
   float current_y_position_bak;
+  float current_z_position_bak;
   float current_e_position_bak;
 } UI_CFG;
 
@@ -259,6 +277,8 @@ typedef enum {
   TEMP_UI,
   SET_UI,
   ZERO_UI,
+  BLTOUCH_UI,
+  TOUCHMI_UI,
   SPRAYER_UI,
   MACHINE_UI,
   LANGUAGE_UI,
@@ -314,10 +334,11 @@ typedef enum {
   PAUSE_POS_UI,
   TMC_CURRENT_UI,
   TMC_MODE_UI,
-	EEPROM_SETTINGS_UI,
-	WIFI_SETTINGS_UI,
+  EEPROM_SETTINGS_UI,
+  WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
-  ENCODER_SETTINGS_UI
+  ENCODER_SETTINGS_UI,
+  TOUCH_CALIBRATION_UI
 } DISP_STATE;
 
 typedef struct {
@@ -381,14 +402,12 @@ typedef enum {
   level_pos_x4,
   level_pos_y4,
   level_pos_x5,
-  level_pos_y5
+  level_pos_y5,
   #if HAS_BED_PROBE
-    ,
     x_offset,
     y_offset,
-    z_offset
+    z_offset,
   #endif
-  ,
   load_length,
   load_speed,
   unload_length,
@@ -403,9 +422,9 @@ typedef enum {
 extern num_key_value_state value;
 
 typedef enum {
-	wifiName,
-	wifiPassWord,
-	wifiConfig,
+  wifiName,
+  wifiPassWord,
+  wifiConfig,
   gcodeCommand
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
@@ -429,6 +448,8 @@ extern lv_style_t style_sel_text;
 extern lv_style_t style_para_value;
 extern lv_style_t style_para_back;
 extern lv_style_t lv_bar_style_indic;
+extern lv_style_t style_btn_pr;
+extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
 
@@ -444,15 +465,89 @@ extern void get_gcode_command(int addr,uint8_t *d);
   extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
 extern void GUI_RefreshPage();
-extern void clear_cur_ui();
-extern void draw_return_ui();
+extern void lv_clear_cur_ui();
+extern void lv_draw_return_ui();
 extern void sd_detection();
 extern void gCfg_to_spiFlah();
 extern void print_time_count();
 
 extern void LV_TASK_HANDLER();
-extern void lv_ex_line(lv_obj_t * line, lv_point_t *points);
+extern void lv_ex_line(lv_obj_t *line, lv_point_t *points);
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
+
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src);
+
+// Set label styles for Released and Pressed
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn);
+
+// Set label styles for Released and Pressed
+void lv_btn_use_label_style(lv_obj_t *btn);
+
+// Set the same style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
+
+// Create a screen
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title = nullptr);
+
+// Create an empty label
+lv_obj_t* lv_label_create_empty(lv_obj_t *par);
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(lv_obj_t *par, const char *text);
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
+
+// Create a button with callback, ID, and Style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style=&style_para_value);
+
+// Create a button with callback and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, ID, and style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id, lv_style_t *style);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create an image button with image, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id=0);
+
+// Create an image button with image, position, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id=0);
+
+// Create a big image button with a label, follow the LVGL UI standard.
+lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, bool centerLabel = false);
+
+// Create a menu item, follow the LVGL UI standard.
+lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, bool drawArrow = true);
+
+lv_obj_t*  lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
+
+void lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue);
+void lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const int idEdit2, const char *editValue2);
+void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue);
+void lv_screen_menu_item_turn_page(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
+void lv_screen_menu_item_return(lv_obj_t *par, lv_event_cb_t cb, const int id);
+
+#define _DIA_1(T)       (uiCfg.dialogType == DIALOG_##T)
+#define DIALOG_IS(V...) DO(DIA,||,V)
